@@ -53,3 +53,10 @@ Example output:
   }
 ]
 ```
+
+
+## Troubleshooting
+
+- If you see `Missing dependency ...`, install packages from `requirements.txt`.
+- If you see zbar-related errors, install native zbar library (example Ubuntu/Debian: `sudo apt install libzbar0`).
+- For PDFs, make sure Poppler is installed (example Ubuntu/Debian: `sudo apt install poppler-utils`).

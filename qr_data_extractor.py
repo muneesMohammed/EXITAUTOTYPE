@@ -10,9 +10,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Iterable
 from urllib.parse import parse_qs, urlparse
 
 
@@ -35,6 +34,11 @@ def _decode_image_with_pyzbar(image):
     except ImportError as exc:  # pragma: no cover - dependency/runtime concern
         raise RuntimeError(
             "Missing dependency 'pyzbar'. Install requirements first."
+        ) from exc
+    except OSError as exc:  # pragma: no cover - system library missing
+        raise RuntimeError(
+            "pyzbar is installed, but native zbar library is missing. "
+            "Install zbar on your OS (e.g. `apt install libzbar0`)."
         ) from exc
 
     decoded = decode(image)
@@ -68,6 +72,11 @@ def _images_from_file(path: Path):
         from PIL import Image
     except ImportError as exc:  # pragma: no cover
         raise RuntimeError("Missing dependency 'Pillow'. Install requirements first.") from exc
+
+    if suffix not in {".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff", ".webp"}:
+        raise RuntimeError(
+            "Unsupported file extension. Use PDF or an image file such as .png/.jpg."
+        )
 
     yield Image.open(path)
 
@@ -109,11 +118,7 @@ def _download_json(url: str):
 
 
 def split_qr_data(raw_text: str, include_downloaded_json: bool = False) -> QRLinkData:
-    """Split QR text into separate variables.
-
-    If QR text is a URL, parse URL components and query params.
-    Otherwise keep the raw value and return empty URL fields.
-    """
+    """Split QR text into separate variables."""
     if not _looks_like_link(raw_text):
         return QRLinkData(
             raw_text=raw_text,
@@ -167,7 +172,12 @@ def main() -> int:
     if not file_path.exists():
         parser.error(f"Input file not found: {file_path}")
 
-    results = extract_qr_link_data(file_path, include_downloaded_json=args.download_json)
+    try:
+        results = extract_qr_link_data(file_path, include_downloaded_json=args.download_json)
+    except RuntimeError as exc:
+        print(f"Error: {exc}")
+        return 2
+
     if not results:
         print("No QR code found in file.")
         return 1
