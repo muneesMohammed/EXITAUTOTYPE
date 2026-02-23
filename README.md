@@ -60,3 +60,17 @@ Example output:
 - If you see `Missing dependency ...`, install packages from `requirements.txt`.
 - If you see zbar-related errors, install native zbar library (example Ubuntu/Debian: `sudo apt install libzbar0`).
 - For PDFs, make sure Poppler is installed (example Ubuntu/Debian: `sudo apt install poppler-utils`).
+
+
+## Tkinter UI (Desktop)
+
+If you want a simple UI in **Tkinter** with an upload field:
+
+```bash
+python tkinter_qr_app.py
+```
+
+Features:
+- Upload/select PDF or image.
+- Click **Scan & Print All Text**.
+- Output area prints all decoded QR text and parsed variables.
