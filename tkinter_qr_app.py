@@ -21,6 +21,7 @@ class QRExtractorApp:
 
         self.file_var = tk.StringVar()
         self.download_json_var = tk.BooleanVar(value=False)
+        self.extract_pdf_text_var = tk.BooleanVar(value=False)
 
         self._build_ui()
 
@@ -43,8 +44,14 @@ class QRExtractorApp:
             variable=self.download_json_var,
         ).grid(row=2, column=0, sticky="w", pady=(2, 8))
 
+        tk.Checkbutton(
+            top,
+            text="Download & Read PDF when QR contains URL",
+            variable=self.extract_pdf_text_var,
+        ).grid(row=3, column=0, sticky="w", pady=(2, 8))
+
         tk.Button(top, text="Scan & Print All Text", command=self.run_scan, width=25).grid(
-            row=2, column=1, sticky="e"
+            row=2, column=1, rowspan=2, sticky="e"
         )
 
         top.grid_columnconfigure(0, weight=1)
@@ -85,6 +92,7 @@ class QRExtractorApp:
             results = extract_qr_link_data(
                 file_path,
                 include_downloaded_json=self.download_json_var.get(),
+                extract_pdf_text=self.extract_pdf_text_var.get(),
             )
         except RuntimeError as exc:
             messagebox.showerror("Scan failed", str(exc))
